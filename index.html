@@ -1,0 +1,20 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Hello WebXR!</title>
+     <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+</head>
+<body>
+    <button id="fetchButton">Activa WebXR</button>
+    <script type="module">
+        import { activateXR } from './src/main.js';
+    </script>
+<script type="module">
+    import { activateXR } from './src/main.js'; 
+    document.getElementById('fetchButton').addEventListener('click', () => { activateXR(); });
+</script>
+
+</body>
+</html>
