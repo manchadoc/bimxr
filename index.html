@@ -8,8 +8,8 @@
 </head>
 <body>
     <button onclick="activateXR()">Activate WebXR</button>
-    <script type="module">
-async function activateXR() {
+    <script>
+    async function activateXR() {
       // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
       const canvas = document.createElement("canvas");
       document.body.appendChild(canvas);
