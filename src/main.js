@@ -44,7 +44,7 @@ const hitTestSource = await session.requestHitTestSource({ space: viewerSpace })
   })
       //https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf
   let flower;
-  loader.load("./assets/0.glb", function(gltf) {
+  loader.load("https://github.com/manchadoc/bimxr/blob/gh-pages/assets/0.glb", function(gltf) {
     flower = gltf.scene;
   });
   session.addEventListener("select", (event) => {
