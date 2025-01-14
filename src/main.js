@@ -1,5 +1,24 @@
+import * as THREE from 'https://cdn.skypack.dev/three@0.128.0';
+import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+
 export async function activateXR() {
-  // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
+
+  const loader = new GLTFLoader();
+  let reticle;
+  loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+    reticle = gltf.scene;
+    reticle.visible = false;
+    scene.add(reticle);
+  })
+      //
+  let flower;
+  loader.load("./src/model.glb", function(gltf) {  //https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf"
+    flower = gltf.scene;
+    flower.scale.set(0.1,0.1,0.1);
+    
+  });
+
+    // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
   const canvas = document.createElement("canvas");
   document.body.appendChild(canvas);
   const gl = canvas.getContext("webgl", {xrCompatible: true});
@@ -33,36 +52,26 @@ const referenceSpace = await session.requestReferenceSpace('local');
 const viewerSpace = await session.requestReferenceSpace('viewer');
 // Perform hit testing using the viewer as origin.
 const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-  // cargar modelo GLTF
-    //
-  const loader = new THREE.GLTFLoader();
-  let reticle;
-  loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
-    reticle = gltf.scene;
-    reticle.visible = false;
-    scene.add(reticle);
-  })
-      //https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf
-  let flower;
-  loader.load("https://raw.githubusercontent.com/manchadoc/bimxr/main/public/assets/pin.glb", function(gltf) {
-    flower = gltf.scene;
-  });
+
+const material = new THREE.MeshBasicMaterial({ color: "#ecff33" });
+const geometry = new THREE.BoxGeometry();
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
   session.addEventListener("select", (event) => {
     if (flower) {
+      console.log(flower.position);
       const clone = flower.clone();
       clone.position.copy(reticle.position);
       scene.add(clone);
     }
   });
 // Create a render loop that allows us to draw on the AR view.
-// Create a render loop that allows us to draw on the AR view.
 const onXRFrame = (time, frame) => {
   // Queue up the next draw request.
   session.requestAnimationFrame(onXRFrame);
-
   // Bind the graphics framebuffer to the baseLayer's framebuffer
   gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
-
   // Retrieve the pose of the device.
   // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
   const pose = frame.getViewerPose(referenceSpace);
