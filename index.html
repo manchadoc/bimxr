@@ -1,19 +1,34 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="./src/style.css">
     <title>Hello WebXR!</title>
 </head>
 <body>
-    
+
+    <label for="textbox1">Coordenada X 1:</label>
+    <input type="text" id="coordX" name="coordX" value="435478"><br><br>
+    <label for="textbox2">Coordenada Y:</label>
+    <input type="text" id="coordY" name="coordY" value="4813643"><br>
+    <label for="textbox2">Z suelo: </label>
+    <input type="text" id="coordZ" name="coordZ" value="0"><br>
+    <label for="checkbox1">Utilizar Coordenadas fijas</label>
+    <input type="checkbox" id="chk1" name="checkbox1"><br>
     <button id="fetchButton">Activa WebXR</button>
+    <div id="overlayText">Instrucciones de funcionamiento</div>
     
+
     <div id="container">
     <script type="module">
         import { activateXR } from './src/main.js'; 
-        document.getElementById('fetchButton').addEventListener('click', () => { activateXR(); });
+        document.getElementById('fetchButton').addEventListener('click', () => { 
+            console.log('Session started');
+            overlayText.style.display = 'block';
+            activateXR(); 
+        });
     </script>
     </div>
+    
 </body>
 </html>
