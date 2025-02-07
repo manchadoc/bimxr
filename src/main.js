@@ -75,7 +75,7 @@ export async function activateXR() {
 async function loadIfc(UTMPosition, miPose, orientation) {
 
   const file = await fetch(
-    "./src/dpto.ifc" //"https://manchadoc.github.io/bimxr/assets/dpto.ifc", //"./src/model.ifc",  // https://thatopen.github.io/engine_components/resources/small.ifc
+    "https://manchadoc.github.io/bimxr/assets/dpto.ifc", //"./src/model.ifc",  // https://thatopen.github.io/engine_components/resources/small.ifc 
   );
   const data = await file.arrayBuffer();
   const buffer = new Uint8Array(data);
@@ -160,8 +160,15 @@ const height = window.innerHeight;
 // Parámetros de la cámara ortográfica
 const aspect = width / height;
 const frustumSize = 10;
-const camera = new THREE.PerspectiveCamera(50,aspect, 0.1, 1000);
-
+//const camera = new THREE.PerspectiveCamera(50,aspect, 0.1, 1000);
+const camera = new THREE.OrthographicCamera(
+  -frustumSize * aspect / 2,   // left
+  frustumSize * aspect / 2,    // right
+  frustumSize / 2,                  // top
+  -frustumSize / 2,                 // bottom
+  1,                                // near
+  1000                              // far
+);
 camera.matrixAutoUpdate = false;
 
 
