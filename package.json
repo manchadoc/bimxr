@@ -10,6 +10,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
+  "homepage": "https://manchadoc.github.io/bimxr",
   "devDependencies": {
     "gh-pages": "^6.2.0",
     "vite": "^6.0.1"
@@ -21,6 +22,8 @@
     "@thatopen/ui-obc": "^2.4.1",
     "mime-types": "^2.1.35",
     "proj4": "^2.15.0",
+    "stats.js": "^0.17.0",
+    "threejs-object-controls": "^1.2.8",
     "web-ifc": "^0.0.66"
   }
 }

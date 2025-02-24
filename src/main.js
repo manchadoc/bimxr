@@ -6,6 +6,7 @@ import * as CUI from "@thatopen/ui-obc";
 import * as OBF from "@thatopen/components-front";
 import * as WEBIFC from "web-ifc";
 import proj4 from 'proj4';
+import * as ADDS from "./addition.js";
 
 let pose =null;
 let hitPose=null;
@@ -14,43 +15,7 @@ let origen=null;
 let model=null;
 // Función para transformar coordenadas a UTM
 // Función para obtener las UTM 
-function getCurrentUTM(callback) {
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      const etrs89Utm30n = '+proj=utm +zone=30 +datum=WGS84 +units=m +no_defs';
-      const wgs84 = proj4('EPSG:4326');
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const utmCoords = proj4(wgs84, etrs89Utm30n, [lon, lat]);
-      callback(utmCoords);
-    },
-    error => {
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          console.log("El usuario ha denegado el acceso a la geolocalización.");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          console.log("La información de la ubicación no está disponible.");
-          break;
-        case error.TIMEOUT:
-          console.log("El tiempo de espera para obtener la ubicación ha expirado.");
-          break;
-        case error.UNKNOWN_ERROR:
-          console.log("Se ha producido un error desconocido.");
-          break;
-        default:
-          console.log("Se ha producido un error desconocido.");
-      }
-    }
-  );
-}
-function getValues() {
-  const coordX = document.getElementById('coordX').value;
-  const coordY = document.getElementById('coordY').value;
-  const coordZ = document.getElementById('coordZ').value;
-  const check = document.getElementById('chk1').checked;
-  return [check, coordX, coordY, coordZ];
-}
+
 
 // FUNCION PRINCIPAL QUE SE ACTIVA AL PULSAR EL BOTÓN DE LA WEB
 export async function activateXR() { 
@@ -67,7 +32,6 @@ export async function activateXR() {
   for (const cat of excludedCats) {
       fragmentIfcLoader.settings.excludedCategories.add(cat);
   }
-
   fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
   // Hasta aquí hemos inicializado el generador de fragments para cargar el IFC. 
 
@@ -83,7 +47,7 @@ async function loadIfc(UTMPosition, miPose, orientation) {
   //  yo se que el 0 0 0 del modelo corresponde a las coordenadas que están en la coordinationMatrix
   // guardo mi posición actual en currentUTM
   model.name = "example";
-  //model.position.set(position[0], position[1], 0)
+
   //model.quaternion.copy(orientation);
   //model.quaternion.set(orientation.x, orientation.y, orientation.z, orientation.w);
   scene.add(model);
@@ -106,9 +70,8 @@ async function loadIfc(UTMPosition, miPose, orientation) {
   const posUtm = new THREE.Vector3(miPose.x, miPose.y, miPose.z).applyMatrix4(invertCoord);
   posUtm.z*=-1;
   const dif = posUtm.sub(positionVector)
-  console.log(dif);
 
-  model.position.set(dif.x, 0, -dif.z);  // con esto ponemos el 00 del modelo en donde esté nuestra pose
+  model.position.set(dif.x, -miPose.y, -dif.z);  // con esto ponemos el 00 del modelo en donde esté nuestra pose
   // ******************************************
 
   // gestionamos propiedades
@@ -119,7 +82,6 @@ async function loadIfc(UTMPosition, miPose, orientation) {
   // **********
 }
 // FIN FUNCION CARGA IFC
-
 // *********************************************************************************************************************
   
   // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
@@ -128,8 +90,10 @@ document.body.appendChild(canvas);
 const gl = canvas.getContext("webgl", {xrCompatible: true});
 const scene = new THREE.Scene();
 // creo luces
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 directionalLight.position.set(10, 15, 10);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
+scene.add(ambientLight);
 scene.add(directionalLight);
 // *************************************************************************************************************
 const loader = new GLTFLoader();
@@ -160,15 +124,15 @@ const height = window.innerHeight;
 // Parámetros de la cámara ortográfica
 const aspect = width / height;
 const frustumSize = 10;
-//const camera = new THREE.PerspectiveCamera(50,aspect, 0.1, 1000);
-const camera = new THREE.OrthographicCamera(
+const camera = new THREE.PerspectiveCamera(50,aspect, 0.1, 1000);
+/*const camera = new THREE.OrthographicCamera(
   -frustumSize * aspect / 2,   // left
   frustumSize * aspect / 2,    // right
   frustumSize / 2,                  // top
   -frustumSize / 2,                 // bottom
   1,                                // near
   1000                              // far
-);
+);*/
 camera.matrixAutoUpdate = false;
 
 
@@ -187,7 +151,7 @@ if (navigator.xr) {
   const viewerSpace = await session.requestReferenceSpace('viewer');  // espacio de referencia medido desde el observador. 0,0,0 en la cabeza del usuario
 // Perform hit testing using the viewer as origin.
   const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-  
+
   const handleSelect = (event) => {
     //console.log(pose.transform.position);     //( esta es la posición del dispositivo (0,0 en planimetria, y la altura a la que se encuentra respecto al suelo))
     //console.log(hitPose.transform.position);  // en este punto se supone que queremos poner el modelo
@@ -201,7 +165,7 @@ if (navigator.xr) {
     } 
     else if (hits==2) {
       // recoger los valores introducidos en la web
-      const valores = getValues();
+      const valores = ADDS.getValues();
       const check = valores[0];
       let coordenadasUTM;
       let UTMposition = new THREE.Matrix4().makeTranslation(0,0,0);
@@ -235,31 +199,34 @@ if (navigator.xr) {
     // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
     pose = frame.getViewerPose(referenceSpace);
     if (pose) {
-      // In mobile AR, we only have one view.
-      const view = pose.views[0];
-      const viewport = session.renderState.baseLayer.getViewport(view);
-      renderer.setSize(viewport.width, viewport.height)
-      // Use the view's transform matrix and projection matrix to configure the THREE.camera.
-      camera.matrix.fromArray(view.transform.matrix)
-      camera.projectionMatrix.fromArray(view.projectionMatrix);
-      camera.updateMatrixWorld(true);
-      const hitTestResults = frame.getHitTestResults(hitTestSource);
-      if (hitTestResults.length > 0 && reticle) {
-        hitPose = hitTestResults[0].getPose(referenceSpace);
-        reticle.visible = true;
-        reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
-        reticle.updateMatrixWorld(true);
-      }
-      if (model) {
-        const miPos = pose.views[0].transform.position;
-        const modelPos = model.position;
+      for (let view of pose.views) {
+        // In mobile AR, we only have one view.
+        const view = pose.views[0];
+        const viewport = session.renderState.baseLayer.getViewport(view);
+        renderer.setSize(viewport.width, viewport.height)
+        // Use the view's transform matrix and projection matrix to configure the THREE.camera.
+        camera.matrix.fromArray(view.transform.matrix)
+        camera.projectionMatrix.fromArray(view.projectionMatrix);
+        camera.updateMatrixWorld(true);
+        const hitTestResults = frame.getHitTestResults(hitTestSource);
+        if (hitTestResults.length > 0 && reticle) {
+          hitPose = hitTestResults[0].getPose(referenceSpace);  
+          reticle.visible = true;
+          reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
+          reticle.updateMatrixWorld(true);
+        }
+        if (model) {
+          const miPos = pose.views[0].transform.position;
+          const modelPos = model.position;
 
-        const invertCoord = model.coordinationMatrix.clone();
-        invertCoord.invert();
-        const posUtm = new THREE.Vector3(miPos.x-modelPos.x, miPos.y, miPos.z-modelPos.z).applyMatrix4(invertCoord);
-        posUtm.z*=-1;
-        overlayText.textContent = posUtm.x.toFixed(2) + " | " + posUtm.z.toFixed(2);
-      } 
+          const invertCoord = model.coordinationMatrix.clone();
+          invertCoord.invert();
+          const posUtm = new THREE.Vector3(miPos.x-modelPos.x, miPos.y, miPos.z-modelPos.z).applyMatrix4(invertCoord);
+          posUtm.z*=-1;
+          overlayText.textContent =miPos.x + ", " + miPos.y + ", "+ miPos.z + " ||| " + posUtm.x.toFixed(2) + " | " + posUtm.z.toFixed(2);
+        } 
+      }
+      
       
       // Render the scene with THREE.WebGLRenderer.
       renderer.render(scene, camera)
@@ -267,6 +234,4 @@ if (navigator.xr) {
   }
   session.requestAnimationFrame(onXRFrame);
   }
-
-
 }
