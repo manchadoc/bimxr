@@ -1,32 +1,37 @@
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <title>Hello WebXR!</title>
-  <script type="module" crossorigin src="/bimxr/assets/main-mKfC1_ei.js"></script>
-  <link rel="modulepreload" crossorigin href="/bimxr/assets/basicVR-27-a8mc6.js">
+  <script type="module" crossorigin src="/bimxr/assets/main-CqGt-6Ey.js"></script>
+  <link rel="modulepreload" crossorigin href="/bimxr/assets/basicVR-CaLiHmdQ.js">
   <link rel="stylesheet" crossorigin href="/bimxr/assets/basicVR-BzaM7uWC.css">
 </head>
-<body>
-    <p>Iterating 18</p>
-    <label for="textbox1">Coordenada X:</label>
-    <input type="text" id="coordX" name="coordX" value="435478"><br>
-    <label for="textbox2">Coordenada Y:</label>
-    <input type="text" id="coordY" name="coordY" value="4813643"><br>
-    <label for="textbox2">Z suelo: </label>
-    <input type="text" id="coordZ" name="coordZ" value="0"><br>
-    <label for="checkbox1">Utilizar Coordenadas fijas</label>
-    <input type="checkbox" id="chk1" name="checkbox1" checked="true"><br>
-    <button id="fetchButton">Activa WebXR</button>
-    <button id="basicAR">Activa AR básico</button>
-    <button id="basicVR">Activa VR básico</button>
-    <div id="container">
-    </div>  
-    <div id="overlayText">Instrucciones de funcionamiento</div>
 
+<body>
+    <div id="controles">
+        <p>Iterating 19</p>
+        <label for="textbox1">Coordenada X:</label>
+        <input type="text" id="coordX" name="coordX" value="435478"><br>
+        <label for="textbox2">Coordenada Y:</label>
+        <input type="text" id="coordY" name="coordY" value="4813643"><br>
+        <label for="textbox2">Z suelo: </label>
+        <input type="text" id="coordZ" name="coordZ" value="0"><br>
+        <label for="checkbox1">Utilizar Coordenadas fijas</label>
+        <input type="checkbox" id="chk1" name="checkbox1" checked="true"><br>
+        <button id="fetchButton">Activa WebXR</button>
+        <button id="basicAR">Activa AR básico</button>
+        <button id="basicVR">Activa VR básico</button>
+    </div>
+    <div id="container">
+    </div>
+    <div id="overlayText">Texto superpuesto</div>
     <div id="overlay">
         <label for="slider">Opacity:</label>
         <input type="range" id="slider" min="0" max="1" step="0.1" value="0.7">
     </div>
 </body>
+
 </html>
